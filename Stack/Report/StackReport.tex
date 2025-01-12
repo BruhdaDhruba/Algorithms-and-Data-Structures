@@ -1,0 +1,156 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+
+\begin{document}
+
+\title{
+    \textbf{Stacks: Dynamic VS Static}
+}
+\author{Dhruba Das}
+\date{Spring Fall 2023}
+
+\maketitle
+
+\section*{Introduction: Problems to solve}
+
+There are in total 4 problems I had to solve in this assignment: 
+a) Representing an expression as an array of items.
+b) Creating the "step" method so that the steps are executed when the "run" method is executed. 
+c) Implementing a static stack.
+d) Implementing a dynamic stack.
+
+\section*{Representing an expression}
+
+This was quite simple to do, yet I had problems understanding so. At first, I did not understand that we had to return an Item when a method such as Item.Value() was called, as I thought, since the Item was already there, the methods only modified the type and the value of each item. However, since this was not the case, I had to use a constructor which would allow to construct an item ( as stated in the assignment ) and then further implement methods which would allow us to change the value or the type of an item and then return that item.
+
+Code snippet:
+\begin{verbatim}
+public Item(ItemType t, int v){
+        type = t;
+        value = v;
+    }
+ ...
+  public static Item Value(int y){
+        return new Item(ItemType.VALUE, y);
+    }
+    public static Item Mul(){
+        return new Item(ItemType.MUL, 0);
+    }
+    public static Item Add(){
+        return new Item(ItemType.ADD, 0);
+    }
+\end{verbatim}
+
+\section*{Executing the steps}
+This was actually the easiest part of the assignment, as I only had to develop the step() method such that it executed whatever expression it encountered. It had 5 parts for the five expressions : VALUE, ADD, SUB, MUL and DIV.
+
+
+\section*{Static stack}
+Although I had worked with stacks before, I had never implemented one myself. I had to thoroughly read through the guidelines in the assignment and refer to previous experiences in order to implement the stack. Below is the code snippet for the static stack I implemented:
+
+\begin{verbatim}
+public class StaticStack extends Stack{
+    int sp = -1;
+    int [] array = new int[8];
+    public void push(int x){
+        if(sp == array.length - 1){
+          System.out.println("Stack is full");
+         } 
+         sp++;
+         array[sp] = x; 
+    }
+    
+    public int pop(){
+        if(sp == -1){
+        System.out.println("Stack is empty");
+        }
+        int y = array[sp];
+        array[sp] = 0;
+        sp--;
+        return y;
+    }
+}
+\end{verbatim}
+As shown above, error messages have been included in cases where the stack might be full or empty.  
+
+\section*{Dynamic Stack}
+Quite a bit of the code for the dynamic stack is same as that of the static stack, as both are initialised with fixed-size arrays. It is in the pop() and push() methods where changes have been made. Below are the changes which were made:
+
+\begin{verbatim}
+public void push(int x){
+        if(sp == array.length - 1){
+          int [] newArray = new int[array.length * 2];
+          for(int i = 0; i < newArray.length; i++){
+            newArray[i] = array[i];
+          }
+          array = newArray;
+...
+public int pop(){
+        int counter = 0;
+        if(sp + 1 < array.length/2)
+          counter--;
+        else
+          counter = 10;
+        
+        if(counter == 0){
+         int [] newArray = new int [array.length/2];
+         for(int i = 0; i < newArray.length; i++){
+           newArray[i] = array[i];
+        }
+        array = newArray;
+   } ...
+\end{verbatim}
+As seen above, I have doubled the size of the array in case the stack is full, and I have set up a counter to check whether the extra space is used in stack after popping; if not, the size of the stack is halved.
+
+
+\section*{Benchmarks}
+
+I had a little bit of a tough time doing this, as I have never benchmarked a method or a code's efficiency before. I have represented the data I have collected below in the form of a table:
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l|c|c}
+\textbf{Stack} & \textbf{Initial size} & \textbf{Min. time taken (ms)}\\
+\hline
+  Dynamic     &  8 &     24\\
+  Static      &  8 &     20\\
+\end{tabular}
+\caption{Dynamic and Static; same initial size; 1000 runs each;  runtime in milliseconds;}
+\label{tab:table}
+\end{center}
+\end{table}
+
+As seen in the table above, the static stack is faster than the dynamic, but not by much, with only a difference of 4ms.
+Below listed is the code which I used to benchmark (had to run it a 1000 times again and pick the minimum times in a different file).
+
+\begin{verbatim}
+        for(int i = 0; i < time.length; i++){
+        Calculator calc = new Calculator(expr);
+        res = calc.run();
+        long endTime = System.currentTimeMillis();
+        time[i] = endTime - startTime;
+        }
+
+        long minTime = 0;
+
+        for(int i = 0; i < time.length - 1; i++){
+            minTime = time[i];
+            if(minTime > time[i + 1])
+             minTime = time[i + 1];
+        }
+         
+
+        System.out.println(" Calculator: res = " + res);
+        System.out.println(" Minimum time taken (ms): " + minTime);
+  }
+  
+}
+\end{verbatim}
+
+
+
+
+
+\end{document}
